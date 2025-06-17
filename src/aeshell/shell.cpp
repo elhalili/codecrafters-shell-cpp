@@ -98,7 +98,7 @@ void Shell::Type(const std::string& cmd) {
   StringVect paths = this->LoadEnvPaths();
   for (auto& path: paths) {
     std::string file_path = path + cmd;
-    if (access(file_path.c_str(), F_OK) == -1) {
+    if (access(file_path.c_str(), F_OK) == 0) {
       std::cout << cmd << " is " << path << cmd << std::endl;
       return;
     }
@@ -122,8 +122,6 @@ StringVect Shell::LoadEnvPaths() {
     paths.push_back(entry);
   }
   
-  std::sort(paths.begin(), paths.end());
-
   return paths;
 }
 
