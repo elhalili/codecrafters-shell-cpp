@@ -3,8 +3,11 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <algorithm>
 
 namespace aeshell {
+
+const StringVect Shell::Builtins = { "echo", "exit", "type" };
 
 Shell::Shell(): cmd_parser() {
   // to implement
@@ -27,7 +30,7 @@ void Shell::Run() {
 }
 
 void Shell::HandleCommand(const std::string& command) { 
-  std::vector<std::string> commands = this->cmd_parser.Parse(command);
+  StringVect commands = this->cmd_parser.Parse(command);
 
   // skip
   if (commands.size() == 0) {
@@ -43,15 +46,22 @@ void Shell::HandleCommand(const std::string& command) {
     this->Exit(commands);
   }
   
-  if (cmd == "echo"){
+  if (cmd == "echo") {
     this->Echo(commands);
     return;
   }   
 
+  if (cmd == "type") {
+    for (auto &str: commands) {
+      this->Type(str);
+    }
+    return;
+  }
+
   std::cout << command << ": command not found" << std::endl;
 }
 
-void Shell::Exit(const std::vector<std::string>& args) {
+void Shell::Exit(const StringVect& args) {
   int exit_code = 0;
   if (args.size() > 0) {
     exit_code = std::atoi(args[1].c_str());
@@ -60,7 +70,7 @@ void Shell::Exit(const std::vector<std::string>& args) {
   exit(exit_code);
 }
 
-void Shell::Echo(const std::vector<std::string>& args) {
+void Shell::Echo(const StringVect& args) {
   bool after_start = false;
 
   for (auto &x: args) {
@@ -72,6 +82,18 @@ void Shell::Echo(const std::vector<std::string>& args) {
     std::cout << x;
   }
   std::cout << std::endl;
+}
+
+
+void Shell::Type(const std::string& cmd) {
+
+  auto it = std::find(Shell::Builtins.begin(), Shell::Builtins.end(), cmd);
+  if (it == Shell::Builtins.end()) {
+    this->HandleCommand(cmd);
+    return;
+  }
+
+  std::cout << cmd << " is a shell builtin" << std::endl;
 }
 
 }
