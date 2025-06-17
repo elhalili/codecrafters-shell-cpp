@@ -121,6 +121,8 @@ StringVect Shell::LoadEnvPaths() {
 
     paths.push_back(entry);
   }
+  
+  std::sort(paths.begin(), paths.end());
 
   return paths;
 }
