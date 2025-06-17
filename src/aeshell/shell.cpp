@@ -4,6 +4,8 @@
 #include <vector>
 #include <cstdlib>
 #include <algorithm>
+#include <unistd.h>
+#include <sstream>
 
 namespace aeshell {
 
@@ -88,12 +90,39 @@ void Shell::Echo(const StringVect& args) {
 void Shell::Type(const std::string& cmd) {
 
   auto it = std::find(Shell::Builtins.begin(), Shell::Builtins.end(), cmd);
-  if (it == Shell::Builtins.end()) {
-    std::cout << cmd << ": not found" << std::endl;
+  if (it != Shell::Builtins.end()) {
+    std::cout << cmd << " is a shell builtin" << std::endl;
     return;
   }
 
-  std::cout << cmd << " is a shell builtin" << std::endl;
+  StringVect paths = this->LoadEnvPaths();
+  for (auto& path: paths) {
+    std::string file_path = path + cmd;
+    if (access(file_path.c_str(), F_OK) == -1) {
+      std::cout << cmd << " is " << path << cmd << std::endl;
+      return;
+    }
+  }
+
+  std::cout << cmd << ": not found" << std::endl;
+}
+
+
+StringVect Shell::LoadEnvPaths() {
+  StringVect paths;
+  std::string path = std::getenv("PATH");
+  std::istringstream iss(path);
+  
+  std::string entry;
+  while (std::getline(iss, entry, ':')) {
+    if (!entry.ends_with("/")) {
+      entry = entry + "/";
+    }
+
+    paths.push_back(entry);
+  }
+
+  return paths;
 }
 
 }
