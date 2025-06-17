@@ -1,6 +1,7 @@
 #ifndef AESHELL_SHELL_H_
 #define AESHELL_SHELL_H_
 #include <string>
+#include <vector>
 #include "aeshell/command_parser.h"
 
 namespace aeshell {
@@ -12,6 +13,8 @@ public:
   Shell();
   void Run();
   void HandleCommand(const std::string& command);
+  void Exit(const std::vector<std::string>& args);
+  void Echo(const std::vector<std::string>& args);
 };
 
 }
