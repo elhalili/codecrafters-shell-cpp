@@ -89,7 +89,7 @@ void Shell::Type(const std::string& cmd) {
 
   auto it = std::find(Shell::Builtins.begin(), Shell::Builtins.end(), cmd);
   if (it == Shell::Builtins.end()) {
-    this->HandleCommand(cmd);
+    std::cout << cmd << ": not found" << std::endl;
     return;
   }
 
