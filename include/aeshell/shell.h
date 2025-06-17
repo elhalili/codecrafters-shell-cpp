@@ -19,6 +19,7 @@ public:
   void Exit(const StringVect& args);
   void Echo(const StringVect& args);
   void Type(const std::string& args);
+  void Exec(const std::string& cmd, const StringVect& args);
   StringVect LoadEnvPaths();
 };
 

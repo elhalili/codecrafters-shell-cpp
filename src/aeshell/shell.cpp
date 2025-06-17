@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <unistd.h>
 #include <sstream>
+#include <cassert>
+#include <sys/wait.h>
 
 namespace aeshell {
 
@@ -60,6 +62,15 @@ void Shell::HandleCommand(const std::string& command) {
     return;
   }
 
+  StringVect paths = this->LoadEnvPaths();
+  for (auto& path: paths) {
+    std::string file_path = path + cmd;
+    if (access(file_path.c_str(), F_OK) == 0) {
+      this->Exec(file_path, commands);
+      return;
+    }
+  }
+
   std::cout << command << ": command not found" << std::endl;
 }
 
@@ -107,6 +118,27 @@ void Shell::Type(const std::string& cmd) {
   std::cout << cmd << ": not found" << std::endl;
 }
 
+void Shell::Exec(const std::string& pathname, const StringVect& args) {
+  pid_t pid = fork();
+  if (pid == -1) {
+    assert(1); // TODO ;)
+  }
+
+  if (pid == 0) {
+    char** _args = new char*[args.size() + 1];
+    std::transform(args.begin(), args.end(), _args, [](const std::string& s) {
+      return const_cast<char*>(s.c_str());
+    });
+    
+    _args[args.size() + 1] = NULL;
+
+    execv(pathname.c_str(), _args);
+    
+    assert(1);
+  }
+
+  wait(NULL);
+}
 
 StringVect Shell::LoadEnvPaths() {
   StringVect paths;
